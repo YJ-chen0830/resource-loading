@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>資源負荷計算 | Resource Loading Calculator</title>
+<script src="https://yj-chen0830.github.io/jrh-core/jrh-core.js?v=3" defer></script>
+<style>
+  :root{--navy:#0b1f3a;--navy2:#13284a;--gold:#c9a14a;--gold2:#e0bf6e;--bg:#f5f3ee;--ink:#1c2530;--line:#d8d2c2;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:"Noto Sans TC","Segoe UI",sans-serif;background:var(--bg);color:var(--ink);}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#f5f3ee;padding:28px 32px;}
+  header h1{margin:0;font-size:22px;}
+  header span{color:var(--gold2);font-size:13px;display:block;margin-top:4px;}
+  main{max-width:1100px;margin:0 auto;padding:28px 20px 60px;}
+  .grid{display:grid;grid-template-columns:380px 1fr;gap:24px;}
+  @media(max-width:900px){.grid{grid-template-columns:1fr;}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px 24px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:20px;}
+  .card h2{font-size:14.5px;margin:0 0 18px;color:var(--navy);font-weight:700;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--gold);padding-bottom:10px;}
+  label{display:block;font-size:12px;color:#666;margin:10px 0 4px;font-weight:500;}
+  input,select{width:100%;padding:8px 11px;border:1.5px solid var(--line);border-radius:7px;font-size:13.5px;background:#fafaf8;}
+  input:focus,select:focus{outline:none;border-color:var(--gold);}
+  .note{font-size:11.5px;color:#999;margin-top:12px;line-height:1.75;background:#f9f7f2;border-radius:6px;padding:9px 12px;}
+  button.calc-btn{margin-top:16px;width:100%;padding:12px;border:none;border-radius:8px;background:var(--navy);color:#fff;font-size:14.5px;font-weight:700;cursor:pointer;}
+  button.calc-btn:hover{background:var(--navy2);}
+  button.pro-btn{margin-top:12px;width:100%;padding:12px;border:none;border-radius:8px;background:var(--gold);color:var(--navy);font-size:14.5px;font-weight:700;cursor:pointer;}
+  button.pro-btn:hover{filter:brightness(1.08);}
+  table{width:100%;border-collapse:collapse;margin-top:10px;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  th{background:var(--navy);color:#f5f3ee;font-weight:600;font-size:12px;padding:9px 10px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  td{padding:9px 10px;font-size:13px;border-bottom:1px solid var(--line);}
+  tr:nth-child(even) td{background:#f9f7f3;}
+  td:last-child{text-align:right;font-weight:700;}
+  .peak{background:#fdf2ec!important;}
+  .bar-row{display:flex;align-items:center;gap:8px;font-size:11.5px;margin-bottom:3px;}
+  .bar-label{width:46px;flex-shrink:0;color:#888;text-align:right;}
+  .bar-track{flex:1;background:var(--bg);border-radius:3px;overflow:hidden;height:16px;}
+  .bar-fill{background:var(--gold);height:100%;border-radius:3px;}
+  .bar-fill.peak-bar{background:#c0392b;}
+  .bar-val{width:32px;flex-shrink:0;font-weight:700;color:var(--navy);}
+  details.proc{margin-top:16px;border:1px solid var(--line);border-radius:8px;background:#fafaf8;overflow:hidden;}
+  details.proc summary{cursor:pointer;padding:10px 14px;font-weight:700;font-size:13px;color:var(--navy);user-select:none;list-style:none;display:flex;align-items:center;gap:6px;}
+  details.proc summary::before{content:"▶";font-size:10px;transition:transform .2s;}
+  details[open].proc summary::before{transform:rotate(90deg);}
+  details.proc pre{margin:0;padding:12px 16px 16px;font-family:"Courier New",monospace;font-size:11px;line-height:1.8;white-space:pre-wrap;color:#2c3e50;border-top:1px solid var(--line);max-height:400px;overflow-y:auto;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .proj-section{background:#fff;border:1px solid var(--gold);border-radius:10px;padding:18px 22px;margin-bottom:20px;}
+  .proj-section h3{margin:0 0 12px;color:var(--navy);font-size:14px;font-weight:700;}
+  .proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:600px){.proj-grid{grid-template-columns:1fr;}}
+  .itemRow{border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:10px;background:#fafaf8;position:relative;}
+  .itemRow .del{position:absolute;right:8px;top:8px;background:#c0392b;color:#fff;border:none;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:12px;padding:0;}
+  .item-label{font-size:12px;font-weight:600;color:#0b1f3a;margin-bottom:6px;}
+  .add-btn{margin-top:10px;width:100%;padding:9px;border:1.5px dashed var(--gold);border-radius:7px;background:#fff;color:var(--navy);font-size:13px;font-weight:600;cursor:pointer;}
+  .chart-scroll{max-height:420px;overflow-y:auto;margin-top:10px;}
+  @media print{
+    header,.no-print{display:none!important;}
+    body{background:#fff;margin:0;font-size:9pt;line-height:1.5;color:#111;}
+    main{padding:0;max-width:100%!important;}
+    .grid{grid-template-columns:1fr!important;gap:10pt!important;}
+    .card{box-shadow:none!important;border:1px solid #ccc!important;border-radius:4pt!important;padding:10pt 12pt!important;break-inside:avoid;}
+    .card h2{font-size:10.5pt!important;padding-bottom:6pt!important;margin-bottom:9pt!important;}
+    table{border:1px solid #bbb!important;border-radius:0!important;margin-top:6pt!important;}
+    th{font-size:8pt!important;padding:5pt 7pt!important;background:#0b1f3a!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    td{font-size:8.5pt!important;padding:5pt 7pt!important;}
+    details.proc{display:block!important;margin-top:10pt!important;border:1pt solid #0b1f3a!important;border-radius:4pt!important;break-inside:avoid;background:#f9f9f6!important;max-height:none!important;}
+    details.proc>summary{display:none!important;}
+    details.proc::before{content:"📋  計算過程（供第三方檢核）";display:block;font-weight:700;font-size:8pt;color:#0b1f3a;padding:6pt 10pt 4pt;border-bottom:1px solid #ccc;letter-spacing:.04em;}
+    details.proc>pre{font-size:6.5pt!important;line-height:1.5!important;white-space:pre-wrap!important;padding:6pt 10pt 10pt!important;color:#1a1a1a!important;font-family:"Courier New",monospace!important;}
+    .proj-section{border:1.5pt solid #0b1f3a!important;border-radius:4pt!important;}
+    button.pro-btn,button.calc-btn,.add-btn,.del{display:none!important;}
+    .chart-scroll{max-height:none!important;overflow:visible!important;}
+    @page{margin:15mm 12mm;size:A4;}
+  }
+</style>
+</head>
+<body data-tool="rl">
+<header>
+  <a href="https://yj-chen0830.github.io/engineering-hub/" style="color:var(--gold2);font-size:12.5px;text-decoration:none;display:inline-block;margin-bottom:8px;">← 返回工程計算中心</a>
+  <h1>資源負荷計算 (Resource Loading Calculator)</h1>
+  <span>由工項時程反推每日人力負荷曲線 · 找出尖峰人力日</span>
+</header>
+<main>
+
+<div class="proj-section no-print" id="projSection">
+  <h3>📁 專案資訊（列印時帶入計算書封面）</h3>
+  <div class="proj-grid">
+    <div><label>工程名稱</label><input id="pj-name" placeholder="○○工程"></div>
+    <div><label>工程地點</label><input id="pj-loc" placeholder="○○市○○區"></div>
+    <div><label>承造廠商</label><input id="pj-contractor" placeholder="○○營造股份有限公司"></div>
+    <div><label>文件編號</label><input id="pj-docno" placeholder="RL-CAL-001"></div>
+    <div><label>計算者</label><input id="pj-calc" placeholder="姓名"></div>
+    <div><label>審核者</label><input id="pj-review" placeholder="姓名"></div>
+    <div><label>計算日期</label><input id="pj-date" type="date"></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div>
+    <div class="card">
+      <h2>工項時程與人力</h2>
+      <div id="actContainer"></div>
+      <button class="add-btn" onclick="addAct()">+ 新增工項</button>
+      <button class="calc-btn" onclick="calcRL()">計算資源負荷</button>
+      <div class="note">工項自「開始日」起，持續「工期」天（含開始日，不含結束日之次日），期間每日投入固定「人力」。逐日加總所有進行中工項之人力，即得每日總負荷；取其最大值為尖峰人力需求，供評估工地容留人數、宿舍/機具調度使用。本工具假設人力需求為常數，未考慮工項內部趕工曲線變化。</div>
+    </div>
+  </div>
+  <div>
+    <div class="card">
+      <h2>計算結果</h2>
+      <div id="rl-result"><p style="color:#888">尚未計算</p></div>
+      <details class="proc" id="rl-proc" style="display:none">
+        <summary>📋 計算過程（供第三方檢核）</summary>
+        <pre id="rl-proc-text"></pre>
+      </details>
+      <button class="pro-btn no-print" onclick="openPro()">📄 產出計算書 PDF</button>
+    </div>
+  </div>
+</div>
+
+</main>
+<script>
+var acts = [];
+var idc = 0;
+
+function addAct(name,start,dur,mp){
+  acts.push({id:idc++, name:(name!==undefined?name:'工項'), start:(start!==undefined?start:0), dur:(dur!==undefined?dur:1), mp:(mp!==undefined?mp:1)});
+  renderActs();
+}
+function delAct(id){ acts = acts.filter(function(a){return a.id!==id;}); renderActs(); }
+function renderActs(){
+  var c = document.getElementById('actContainer');
+  c.innerHTML = '';
+  acts.forEach(function(a, idx){
+    var div = document.createElement('div');
+    div.className = 'itemRow';
+    div.innerHTML =
+      '<button class="del" onclick="delAct('+a.id+')">×</button>'+
+      '<div class="item-label">工項</div>'+
+      '<input type="text" value="'+a.name+'" style="margin-bottom:8px" onchange="acts['+idx+'].name=this.value">'+
+      '<div class="row3">'+
+        '<div><label>開始日</label><input type="number" value="'+a.start+'" min="0" onchange="acts['+idx+'].start=parseInt(this.value)||0"></div>'+
+        '<div><label>工期(天)</label><input type="number" value="'+a.dur+'" min="1" onchange="acts['+idx+'].dur=parseInt(this.value)||1"></div>'+
+        '<div><label>人力(人/日)</label><input type="number" value="'+a.mp+'" min="0" onchange="acts['+idx+'].mp=parseFloat(this.value)||0"></div>'+
+      '</div>';
+    c.appendChild(div);
+  });
+}
+
+function openPro(){ JRH.checkEmail(function(){ jrhPrint('資源負荷計算書'); }); }
+function f1(x){return x.toFixed(1);}
+
+function calcRL(){
+  var resDiv = document.getElementById('rl-result');
+  if (acts.length===0){
+    resDiv.innerHTML = '<p class="ng">請至少輸入 1 個工項。</p>';
+    document.getElementById('rl-proc').style.display='none';
+    return;
+  }
+  var maxDay = Math.max.apply(null, acts.map(function(a){ return a.start+a.dur; }));
+  var daily = new Array(maxDay).fill(0);
+  acts.forEach(function(a){
+    for (var d=a.start; d<a.start+a.dur; d++){ daily[d]+=a.mp; }
+  });
+
+  var peak = Math.max.apply(null, daily);
+  var peakDay = daily.indexOf(peak);
+
+  var barHtml = daily.map(function(v,d){
+    var pct = peak>0 ? (v/peak*100) : 0;
+    var isPeak = v===peak;
+    return '<div class="bar-row"><div class="bar-label">Day'+d+'</div><div class="bar-track"><div class="bar-fill'+(isPeak?' peak-bar':'')+'" style="width:'+pct+'%"></div></div><div class="bar-val">'+f1(v)+'</div></div>';
+  }).join('');
+
+  var res = document.getElementById('rl-result');
+  res.innerHTML =
+    '<table><tr><th>項目</th><th>數值</th></tr>'+
+    '<tr><td>專案總工期</td><td>'+maxDay+' 天</td></tr>'+
+    '<tr><td>尖峰人力需求</td><td>'+f1(peak)+' 人/日（Day '+peakDay+'）</td></tr>'+
+    '</table>'+
+    '<h3 style="margin:14px 0 6px;font-size:13px;color:#0b1f3a;">每日人力負荷曲線</h3>'+
+    '<div class="chart-scroll">'+barHtml+'</div>';
+
+  var p='';
+  p+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  p+='  資源負荷計算過程\n';
+  p+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  p+='【輸入】工項清單\n';
+  acts.forEach(function(a){ p+='  '+a.name+'：開始日='+a.start+'，工期='+a.dur+'天，人力='+a.mp+'人/日（佔用 Day'+a.start+'～Day'+(a.start+a.dur-1)+'）\n'; });
+  p+='\n【一】逐日人力加總\n';
+  daily.forEach(function(v,d){
+    var active = acts.filter(function(a){ return d>=a.start && d<a.start+a.dur; }).map(function(a){return a.name+'('+a.mp+')';});
+    p+='  Day'+d+'：'+(active.length?active.join('+')+' = '+f1(v):'0')+' 人'+(v===peak?'　★ 尖峰':'')+'\n';
+  });
+  p+='\n【二】結果\n';
+  p+='  專案總工期 = '+maxDay+' 天\n';
+  p+='  尖峰人力需求 = '+f1(peak)+' 人/日，發生於 Day '+peakDay+'\n\n';
+  p+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  p+='  本工具假設各工項人力需求為常數，未考慮工項內部人力爬升/遞減曲線。\n';
+  p+='  可與「進度網狀圖」工具之要徑分析結果搭配，作為資源撫平（Resource Leveling）調整之依據。\n';
+  p+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+  document.getElementById('rl-proc-text').textContent=p;
+  document.getElementById('rl-proc').style.display='';
+}
+
+addAct('工項A',0,5,10);
+addAct('工項B',3,4,8);
+addAct('工項C',5,3,5);
+calcRL();
+</script>
+<script>
+window.jrhDocMeta={
+ "doc": "資源負荷計算書",
+ "codes": [
+  "資源負荷分析（Resource Loading）— 工程管理常用人力/機具需求規劃法"
+ ],
+ "notes": [
+  "本工具假設各工項人力需求於施作期間為常數，未考慮工項內部人力爬升/遞減曲線，實際尖峰需求可能與本工具結果略有差異。",
+  "可搭配「進度網狀圖」工具之要徑分析結果，評估是否進行資源撫平（Resource Leveling，調整非要徑工項起始時間以降低尖峰人力需求）。",
+  "本計算書應經工地負責人或專案經理確認後，作為人力/宿舍/機具調度規劃參考。"
+ ]
+};
+</script>
+</body>
+</html>
