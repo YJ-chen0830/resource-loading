@@ -25,6 +25,8 @@
   button.calc-btn:hover{background:var(--navy2);}
   button.pro-btn{margin-top:12px;width:100%;padding:12px;border:none;border-radius:8px;background:var(--gold);color:var(--navy);font-size:14.5px;font-weight:700;cursor:pointer;}
   button.pro-btn:hover{filter:brightness(1.08);}
+  a.chain-btn{display:block;text-align:center;margin-top:12px;width:100%;padding:12px;border:1.5px dashed var(--gold);border-radius:8px;background:#fff;color:var(--navy);font-size:13.5px;font-weight:700;text-decoration:none;box-sizing:border-box;}
+  a.chain-btn:hover{background:#fdf7ec;}
   table{width:100%;border-collapse:collapse;margin-top:10px;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
   th{background:var(--navy);color:#f5f3ee;font-weight:600;font-size:12px;padding:9px 10px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   td{padding:9px 10px;font-size:13px;border-bottom:1px solid var(--line);}
@@ -67,7 +69,7 @@
     details.proc::before{content:"📋  計算過程（供第三方檢核）";display:block;font-weight:700;font-size:8pt;color:#0b1f3a;padding:6pt 10pt 4pt;border-bottom:1px solid #ccc;letter-spacing:.04em;}
     details.proc>pre{font-size:6.5pt!important;line-height:1.5!important;white-space:pre-wrap!important;padding:6pt 10pt 10pt!important;color:#1a1a1a!important;font-family:"Courier New",monospace!important;}
     .proj-section{border:1.5pt solid #0b1f3a!important;border-radius:4pt!important;}
-    button.pro-btn,button.calc-btn,.add-btn,.del{display:none!important;}
+    button.pro-btn,button.calc-btn,.add-btn,.del,a.chain-btn{display:none!important;}
     .chart-scroll{max-height:none!important;overflow:visible!important;}
     @page{margin:15mm 12mm;size:A4;}
   }
@@ -113,6 +115,7 @@
         <pre id="rl-proc-text"></pre>
       </details>
       <button class="pro-btn no-print" onclick="openPro()">📄 產出計算書 PDF</button>
+      <a class="chain-btn no-print" href="https://yj-chen0830.github.io/schedule-crashing/" target="_blank" rel="noopener">➜ 前往「工期趕工成本分析」工具（依尖峰人力評估趕工可行性）</a>
     </div>
   </div>
 </div>
