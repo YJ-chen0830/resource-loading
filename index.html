@@ -209,6 +209,16 @@ addAct('工項A',0,5,10);
 addAct('工項B',3,4,8);
 addAct('工項C',5,3,5);
 calcRL();
+
+function jrhTryInbound(){
+  if(!(window.JRH && JRH.showInboundBanner))return;
+  JRH.showInboundBanner('adm','進度網狀圖與S曲線',function(data){
+    data.activities.forEach(function(a){ addAct(a.name, a.start, a.duration); });
+    calcRL();
+  });
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',jrhTryInbound);
+else jrhTryInbound();
 </script>
 <script>
 window.jrhDocMeta={
